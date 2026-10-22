@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SO4T Protocol | Cross-Chain Rewards</title>
+    <!-- Fonts & Bootstrap 5 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #090B0E;
+            --surface-card: #11141B;
+            --surface-border: #1E232D;
+            --surface-hover: #161A23;
+            --accent-blue: #2563EB;
+            --accent-blue-hover: #1D4ED8;
+            --accent-green: #10B981;
+            --accent-green-glow: rgba(16, 185, 129, 0.15);
+            --text-primary: #F9FAFB;
+            --text-secondary: #9CA3AF;
+            --text-muted: #6B7280;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navigation Bar */
+        .navbar-custom {
+            border-bottom: 1px solid var(--surface-border);
+            background: rgba(9, 11, 14, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 16px 24px;
+        }
+
+        .brand-logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(37, 99, 235, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Main Container */
+        .portal-wrapper {
+            max-width: 460px;
+            width: 100%;
+            margin: auto;
+            padding: 24px 16px;
+        }
+
+        .claim-card {
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Banner & Network Mapping */
+        .network-banner {
+            background: rgba(30, 35, 45, 0.5);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.825rem;
+            margin-bottom: 24px;
+        }
+
+        .net-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .net-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .net-dot.base { background-color: #0052FF; }
+        .net-dot.arbitrum { background-color: #28A0F0; }
+
+        /* Reward Metric Header */
+        .reward-header {
+            text-align: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--surface-border);
+            margin-bottom: 24px;
+        }
+
+        .reward-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .reward-value-container {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .reward-amount {
+            font-family: var(--font-mono);
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        .reward-ticker {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        /* Data Rows */
+        .data-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .data-label {
+            color: var(--text-secondary);
+        }
+
+        .data-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        .unit-ticker {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 4px;
+            font-family: var(--font-sans);
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary-claim {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+        .btn-primary-claim:hover:not(:disabled) {
+            background: var(--accent-blue-hover);
+            transform: translateY(-1px);
+        }
+        .btn-primary-claim:disabled {
+            background: #1C222D;
+            color: var(--text-muted);
+            cursor: not-allowed;
+            border: 1px solid var(--surface-border);
+        }
+
+        .btn-secondary-wallet {
+            background: transparent;
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+        .btn-secondary-wallet:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .status-pill.eligible {
+            background: var(--accent-green-glow);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .status-pill.inactive {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(156, 163, 175, 0.2);
+        }
+
+        /* Footer Metadata */
+        .contract-footer {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--surface-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .contract-footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        .contract-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar-custom d-flex justify-content-between align-items-center">
+        <div class="brand-logo">
+            SO4T PROTOCOL
+            <span class="brand-badge">Cross-Chain V2</span>
+        </div>
+        <div>
+            <appkit-button></appkit-button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="portal-wrapper">
+        <div class="claim-card">
+            
+            <!-- Network Context Header -->
+            <div class="network-banner">
+                <div>
+                    <span class="text-muted d-block" style="font-size: 0.7rem;">SNAPSHOT BALANCES</span>
+                    <span class="net-tag"><span class="net-dot base"></span> Base Mainnet</span>
+                </div>
+                <div class="text-end">
+                    <span class="text-muted d-block" style="font-size: 0.7rem;">CLAIM SETTLEMENT</span>
+                    <span class="net-tag"><span class="net-dot arbitrum"></span> Arbitrum One</span>
+                </div>
+            </div>
+
+            <!-- Reward Display -->
+            <div class="reward-header">
+                <div id="round-info" class="mb-2">
+                    <span class="status-pill inactive">ROUND --</span>
+                </div>
+                <div class="reward-label">Claimable Balance</div>
+                <div class="reward-value-container">
+                    <span id="est-reward" class="reward-amount">0.00</span>
+                    <span class="reward-ticker">GHST</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Analytics -->
+            <div class="data-group">
+                <div class="data-row">
+                    <span class="data-label">Base SO4T Holdings</span>
+                    <span class="data-value"><span id="user-so4t">0.00</span><span class="unit-ticker">SO4T</span></span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Distribution Ratio</span>
+                    <span class="data-value">1 : <span id="current-ratio">--</span><span class="unit-ticker">GHST</span></span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Eligibility Status</span>
+                    <span id="claim-status" class="data-value">
+                        <span class="status-pill inactive">Disconnected</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Primary Claim Button -->
+            <button id="claimBtn" class="btn-action btn-primary-claim" onclick="processClaim()" disabled>
+                CONNECT WALLET
+            </button>
+
+            <!-- Secondary Fallback Button -->
+            <button id="metaMaskBtn" class="btn-action btn-secondary-wallet" onclick="connectMetaMaskDirect()">
+                Direct MetaMask Connect
+            </button>
+
+            <!-- Contract Metadata -->
+            <div class="contract-footer">
+                <div>Arbitrum Contract: 
+                    <a href="https://arbiscan.io/address/0xC04fA30140e7B8bBB8E4B73B70755CFFF93308e3" target="_blank" rel="noopener">
+                        0xC04f...08e3
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ethers v6 & Reown AppKit -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+    <script type="module">
+        import { createAppKit } from 'https://esm.sh/@reown/appkit';
+        import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers';
+        import { arbitrum, base } from 'https://esm.sh/@reown/appkit/networks';
+
+        const projectId = 'YOUR_REOWN_PROJECT_ID'; // Replace with valid Reown Project ID
+        
+        // Contracts
+        const arbitrumContractAddr = "0xC04fA30140e7B8bBB8E4B73B70755CFFF93308e3"; // Claim contract on Arbitrum
+        const baseSo4tAddr = "0xf8B3C47D4160052B4991B4753382000FB4675065";         // Token contract on Base
+
+        const claimAbi = [
+            "function currentRound() view returns (uint256)",
+            "function rewardRatio() view returns (uint256)",
+            "function lastClaimedRound(address) view returns (uint256)",
+            "function isExcluded(address) view returns (bool)",
+            "function claimReward() external"
+        ];
+        const erc20Abi = ["function balanceOf(address) view returns (uint256)"];
+
+        const modal = createAppKit({
+            adapters: [new EthersAdapter()],
+            networks: [arbitrum, base],
+            defaultNetwork: arbitrum,
+            projectId,
+            metadata: { 
+                name: 'SO4T Protocol Reward Portal', 
+                description: 'Cross-chain reward distribution interface',
+                url: window.location.origin 
+            }
+        });
+
+        let userAddr, signer, contract;
+
+        modal.subscribeAccount(async (state) => {
+            if (state.isConnected && state.address) {
+                userAddr = state.address;
+                try {
+                    const walletProvider = modal.getWalletProvider();
+                    const browserProvider = new ethers.BrowserProvider(walletProvider);
+                    signer = await browserProvider.getSigner();
+                    contract = new ethers.Contract(arbitrumContractAddr, claimAbi, signer);
+                    await updateDashboard();
+                } catch (err) {
+                    console.error("Initialization error:", err);
+                }
+            } else {
+                resetState();
+            }
+        });
+
+        function resetState() {
+            userAddr = null;
+            document.getElementById('claimBtn').innerText = "CONNECT WALLET";
+            document.getElementById('claimBtn').disabled = true;
+            document.getElementById('claim-status').innerHTML = '<span class="status-pill inactive">Disconnected</span>';
+            document.getElementById('est-reward').innerText = "0.00";
+            document.getElementById('user-so4t').innerText = "0.00";
+            document.getElementById('round-info').innerHTML = '<span class="status-pill inactive">ROUND --</span>';
+        }
+
+        window.connectMetaMaskDirect = async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    
+                    // Enforce switch to Arbitrum (Chain ID: 42161 / 0xa4b1)
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0xa4b1' }],
+                        });
+                    } catch (switchErr) {
+                        console.warn("User declined or network switch failed", switchErr);
+                    }
+
+                    signer = await provider.getSigner();
+                    userAddr = await signer.getAddress();
+                    contract = new ethers.Contract(arbitrumContractAddr, claimAbi, signer);
+                    await updateDashboard();
+                } catch (err) {
+                    console.error("MetaMask direct error:", err);
+                }
+            } else {
+                alert("MetaMask extension standard provider not detected.");
+            }
+        };
+
+        async function updateDashboard() {
+            if (!userAddr) return;
+            try {
+                // Read SO4T balance specifically from Base Mainnet RPC
+                const baseProvider = new ethers.JsonRpcProvider("https://mainnet.base.org");
+                const so4tContract = new ethers.Contract(baseSo4tAddr, erc20Abi, baseProvider);
+
+                const [round, ratio, userBal, lastClaim, excluded] = await Promise.all([
+                    contract.currentRound(),
+                    contract.rewardRatio(),
+                    so4tContract.balanceOf(userAddr),
+                    contract.lastClaimedRound(userAddr),
+                    contract.isExcluded(userAddr)
+                ]);
+
+                const ratioFormatted = ethers.formatUnits(ratio, 18);
+                const userBalFormatted = ethers.formatUnits(userBal, 18);
+                const totalReward = (parseFloat(userBalFormatted) * parseFloat(ratioFormatted)).toFixed(2);
+
+                document.getElementById('round-info').innerHTML = `<span class="status-pill eligible">ROUND ${round.toString()} ACTIVE</span>`;
+                document.getElementById('user-so4t').innerText = parseFloat(userBalFormatted).toLocaleString(undefined, {maximumFractionDigits: 2});
+                document.getElementById('current-ratio').innerText = ratioFormatted;
+                document.getElementById('est-reward').innerText = totalReward;
+
+                const btn = document.getElementById('claimBtn');
+                const statusEl = document.getElementById('claim-status');
+
+                if (excluded) {
+                    statusEl.innerHTML = '<span class="text-danger fw-bold">Blacklisted</span>';
+                    btn.innerText = "INELIGIBLE ADDRESS";
+                    btn.disabled = true;
+                } else if (lastClaim >= round) {
+                    statusEl.innerHTML = '<span class="text-success fw-bold">Claimed</span>';
+                    btn.innerText = "ROUND ALREADY CLAIMED";
+                    btn.disabled = true;
+                } else if (parseFloat(userBalFormatted) <= 0) {
+                    statusEl.innerHTML = '<span class="text-warning fw-bold">No SO4T Held</span>';
+                    btn.innerText = "BASE BALANCE REQUIRED";
+                    btn.disabled = true;
+                } else {
+                    statusEl.innerHTML = '<span class="status-pill eligible">Eligible (Arbitrum)</span>';
+                    btn.innerText = `CLAIM ${totalReward} GHST ON ARBITRUM`;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error("Dashboard synchronization error:", e);
+            }
+        }
+
+        window.processClaim = async () => {
+            try {
+                const btn = document.getElementById('claimBtn');
+                btn.innerText = "CONFIRMING TRANSACTION...";
+                btn.disabled = true;
+
+                const tx = await contract.claimReward();
+                await tx.wait();
+
+                alert("Transaction successful! Your GHST tokens are on Arbitrum.");
+                await updateDashboard();
+            } catch (e) {
+                alert("Transaction failed: " + (e.reason || e.message || "Unknown error"));
+                await updateDashboard();
+            }
+        };
+    </script>
+</body>
+</html>
